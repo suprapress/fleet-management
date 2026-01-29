@@ -65,7 +65,13 @@ export default function DriverDashboard() {
                         onPress={() => router.push('/driver/tasks')}
                     />
                     <MenuItem icon="⛽" label="Bahan Bakar" color="#FFF7ED" iconColor="#F97316" />
-                    <MenuItem icon="⚠️" label="Lapor Kerusakan" color="#FEF2F2" iconColor="#EF4444" />
+                    <MenuItem
+                        icon="⚠️"
+                        label="Lapor Kerusakan"
+                        color="#FEF2F2"
+                        iconColor="#EF4444"
+                        onPress={() => router.push('/driver/damage-report')}
+                    />
                     <MenuItem icon="🔍" label="Riwayat" color="#FAF5FF" iconColor="#A855F7" />
                     <MenuItem icon="🎧" label="Bantuan" color="#ECFEFF" iconColor="#06B6D4" />
                 </View>
