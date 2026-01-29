@@ -1,5 +1,7 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, FlatList } from 'react-native';
 import { Stack } from 'expo-router';
+import { useState } from 'react';
+import { Feather } from '@expo/vector-icons';
 
 const HISTORY_DATA = [
     {
@@ -34,7 +36,7 @@ const HISTORY_DATA = [
     },
 ];
 
-interface HistoryItem {
+interface HistoryItemType {
     id: string;
     date: string;
     unit: string;
@@ -45,27 +47,136 @@ interface HistoryItem {
     statusTextColor: string;
 }
 
-export default function DriverHistory() {
-    const renderItem = ({ item }: { item: HistoryItem }) => (
-        <View style={styles.historyCard}>
-            <View style={styles.cardHeader}>
-                <Text style={styles.cardDate}>{item.date}</Text>
-                <View style={[styles.statusBadge, { backgroundColor: item.statusColor }]}>
-                    <Text style={[styles.statusText, { color: item.statusTextColor }]}>{item.status}</Text>
+const TaskStep = ({ title, isActive, isCompleted, isLast, children, onExpand }: any) => {
+    return (
+        <View style={styles.stepContainer}>
+            {/* Left Column: Icon + Line */}
+            <View style={styles.stepLeft}>
+                <View style={[
+                    styles.stepIcon,
+                    isCompleted ? styles.stepIconDone : (isActive ? styles.stepIconActive : styles.stepIconPending)
+                ]}>
+                    {isCompleted ? <Feather name="check" size={14} color="#FFF" /> : <Text style={[styles.stepNumber, isActive && styles.stepNumberActive]}>{isActive || isCompleted ? '•' : '○'}</Text>}
                 </View>
+                {!isLast && <View style={styles.stepLine} />}
             </View>
 
-            <Text style={styles.unitText}>UNIT: {item.unit}</Text>
+            {/* Right Column: Header + Body */}
+            <View style={styles.stepRight}>
+                <TouchableOpacity style={styles.stepHeader} onPress={onExpand}>
+                    <Text style={[styles.stepTitle, isActive && styles.stepTitleActive]}>{title}</Text>
+                    <Feather name={isActive ? "chevron-up" : "chevron-down"} size={20} color="#64748B" />
+                </TouchableOpacity>
 
-            <Text style={styles.typeLabel}>{item.type}</Text>
-            <View style={styles.amountRow}>
-                <Text style={[styles.amountText, item.status === 'DITOLAK' && styles.amountTextRed]}>
-                    {item.amount}
-                </Text>
-                <Text style={styles.chevron}>⌄</Text>
+                {isActive && (
+                    <View style={styles.stepBody}>
+                        {children}
+                    </View>
+                )}
             </View>
         </View>
     );
+};
+
+const HistoryItem = ({ item }: { item: HistoryItemType }) => {
+    const [expanded, setExpanded] = useState(false);
+    const [activeStep, setActiveStep] = useState<number | null>(null);
+
+    const toggleStep = (step: number) => {
+        setActiveStep(activeStep === step ? null : step);
+    };
+
+    return (
+        <View style={styles.historyCard}>
+            <TouchableOpacity onPress={() => setExpanded(!expanded)} activeOpacity={0.7}>
+                <View style={styles.cardHeader}>
+                    <Text style={styles.cardDate}>{item.date}</Text>
+                    <View style={[styles.statusBadge, { backgroundColor: item.statusColor }]}>
+                        <Text style={[styles.statusText, { color: item.statusTextColor }]}>{item.status}</Text>
+                    </View>
+                </View>
+
+                <Text style={styles.unitText}>UNIT: {item.unit}</Text>
+
+                <Text style={styles.typeLabel}>{item.type}</Text>
+                <View style={styles.amountRow}>
+                    <Text style={[styles.amountText, item.status === 'DITOLAK' && styles.amountTextRed]}>
+                        {item.amount}
+                    </Text>
+                    <Feather name={expanded ? "chevron-up" : "chevron-down"} size={20} color="#94A3B8" />
+                </View>
+            </TouchableOpacity>
+
+            {expanded && (
+                <View style={styles.timelineSection}>
+                    <View style={styles.divider} />
+
+                    {/* Simplified Timeline Data */}
+                    <TaskStep
+                        title="1. Persiapan & Identitas"
+                        isCompleted={true}
+                        isActive={activeStep === 1}
+                        onExpand={() => toggleStep(1)}
+                    >
+                        <Text style={styles.detailText}>Start KM: 12500</Text>
+                        <Text style={styles.detailText}>Driver: John Doe</Text>
+                    </TaskStep>
+
+                    <TaskStep
+                        title="2. Pemuatan (Loading)"
+                        isCompleted={true}
+                        isActive={activeStep === 2}
+                        onExpand={() => toggleStep(2)}
+                    >
+                        <Text style={styles.detailText}>Operator: Budi</Text>
+                        <Text style={styles.detailText}>Bucket: 5</Text>
+                    </TaskStep>
+
+                    <TaskStep
+                        title="3. Penimbangan Awal"
+                        isCompleted={true}
+                        isActive={activeStep === 3}
+                        onExpand={() => toggleStep(3)}
+                    >
+                        <Text style={styles.detailText}>Gross: 25.5 Ton</Text>
+                    </TaskStep>
+
+                    <TaskStep
+                        title="4. Perjalanan"
+                        isCompleted={true}
+                        isActive={activeStep === 4}
+                        onExpand={() => toggleStep(4)}
+                    >
+                        <Text style={styles.detailText}>Status: Lancar</Text>
+                    </TaskStep>
+
+                    <TaskStep
+                        title="5. Bongkar & Timbang Akhir"
+                        isCompleted={true}
+                        isActive={activeStep === 5}
+                        onExpand={() => toggleStep(5)}
+                    >
+                        <Text style={styles.detailText}>Tare: 10.2 Ton</Text>
+                        <Text style={styles.detailText}>Net: 15.3 Ton</Text>
+                    </TaskStep>
+
+                    <TaskStep
+                        title="6. Data Solar"
+                        isCompleted={true}
+                        isActive={activeStep === 6}
+                        onExpand={() => toggleStep(6)}
+                        isLast={true}
+                    >
+                        <Text style={styles.detailText}>Refuel: 0 Ltr</Text>
+                    </TaskStep>
+                </View>
+            )}
+        </View>
+    );
+};
+
+export default function DriverHistory() {
+
 
     return (
         <SafeAreaView style={styles.safeArea}>
@@ -116,7 +227,7 @@ export default function DriverHistory() {
                 {/* List */}
                 <FlatList
                     data={HISTORY_DATA}
-                    renderItem={renderItem}
+                    renderItem={({ item }) => <HistoryItem item={item} />}
                     keyExtractor={item => item.id}
                     contentContainerStyle={styles.listContent}
                     showsVerticalScrollIndicator={false}
@@ -314,5 +425,82 @@ const styles = StyleSheet.create({
     chevron: {
         fontSize: 20,
         color: '#94A3B8',
+    },
+    // Timeline Styles
+    timelineSection: {
+        marginTop: 16,
+    },
+    stepContainer: {
+        flexDirection: 'row',
+    },
+    stepLeft: {
+        alignItems: 'center',
+        marginRight: 16,
+    },
+    stepRight: {
+        flex: 1,
+        paddingBottom: 16,
+    },
+    stepIcon: {
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 2,
+        backgroundColor: '#FFFFFF',
+    },
+    stepIconActive: {
+        borderColor: '#EAB308',
+        borderWidth: 3,
+    },
+    stepIconDone: {
+        backgroundColor: '#22C55E',
+        borderColor: '#22C55E',
+        borderWidth: 2,
+    },
+    stepIconPending: {
+        backgroundColor: '#F1F5F9',
+        borderColor: '#E2E8F0',
+        borderWidth: 2,
+    },
+    stepNumber: {
+        fontSize: 10,
+        fontWeight: '800',
+        color: '#CBD5E1',
+    },
+    stepNumberActive: {
+        color: '#EAB308',
+    },
+    stepLine: {
+        width: 2,
+        flex: 1,
+        backgroundColor: '#E2E8F0',
+        marginVertical: 4,
+        minHeight: 16,
+    },
+    stepHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        height: 24,
+        marginBottom: 4,
+    },
+    stepTitle: {
+        fontSize: 13,
+        fontWeight: '700',
+        color: '#64748B',
+    },
+    stepTitleActive: {
+        color: '#0F172A',
+    },
+    stepBody: {
+        paddingTop: 4,
+        paddingBottom: 8,
+    },
+    detailText: {
+        fontSize: 12,
+        color: '#475569',
+        marginBottom: 2,
     },
 });
