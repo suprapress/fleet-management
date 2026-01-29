@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
+import { router } from 'expo-router';
 
 
 export default function MaintenanceDashboard() {
@@ -55,7 +56,12 @@ export default function MaintenanceDashboard() {
 
                 {/* Quick Menu */}
                 <View style={styles.menuGrid}>
-                    <MenuButton icon="📋" label="Daftar P2H" color="#0EA5E9" />
+                    <MenuButton
+                        icon="📋"
+                        label="Daftar P2H"
+                        color="#0EA5E9"
+                        onPress={() => router.push('/maintenance/p2h')}
+                    />
                     <MenuButton icon="🛠️" label="Perbaikan" color="#10B981" />
                     <MenuButton icon="📦" label="Cek Suku Cadang" color="#F59E0B" />
                     <MenuButton icon="🕒" label="Riwayat Servis" color="#8B5CF6" />
@@ -139,11 +145,12 @@ interface MenuButtonProps {
     icon: string;
     label: string;
     color: string;
+    onPress?: () => void;
 }
 
-function MenuButton({ icon, label, color }: MenuButtonProps) {
+function MenuButton({ icon, label, color, onPress }: MenuButtonProps) {
     return (
-        <TouchableOpacity style={styles.menuBtn}>
+        <TouchableOpacity style={styles.menuBtn} onPress={onPress}>
             <View style={[styles.menuBtnIconBox, { backgroundColor: color }]}>
                 <Text style={styles.menuBtnIcon}>{icon}</Text>
             </View>

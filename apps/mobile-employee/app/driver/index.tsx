@@ -144,11 +144,12 @@ interface MenuItemProps {
     label: string;
     color: string;
     iconColor: string;
+    onPress?: () => void;
 }
 
-function MenuItem({ icon, label, color, iconColor }: MenuItemProps) {
+function MenuItem({ icon, label, color, iconColor, onPress }: MenuItemProps) {
     return (
-        <TouchableOpacity style={styles.menuItem}>
+        <TouchableOpacity style={styles.menuItem} onPress={onPress}>
             <View style={[styles.menuIconBox, { backgroundColor: color }]}>
                 <Text style={[styles.menuIcon, { color: iconColor }]}>{icon}</Text>
             </View>
