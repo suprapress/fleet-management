@@ -84,16 +84,33 @@ export default function DriverHistory() {
                     </TouchableOpacity>
                 </View>
 
-                {/* Filter Section */}
-                <View style={styles.filterSection}>
-                    <View>
-                        <Text style={styles.filterLabel}>PERIODE</Text>
-                        <Text style={styles.filterValue}>Januari 2026</Text>
+                {/* Summary & Filter Card */}
+                <View style={styles.summarySection}>
+                    {/* Period Row */}
+                    <View style={styles.periodRow}>
+                        <View>
+                            <Text style={styles.filterLabel}>PERIODE</Text>
+                            <Text style={styles.filterValue}>Januari 2026</Text>
+                        </View>
+                        <TouchableOpacity style={styles.filterButton}>
+                            <Text style={styles.filterButtonIcon}>⚡</Text>
+                            <Text style={styles.filterButtonText}>Filter</Text>
+                        </TouchableOpacity>
                     </View>
-                    <TouchableOpacity style={styles.filterButton}>
-                        <Text style={styles.filterButtonIcon}>⚡</Text>
-                        <Text style={styles.filterButtonText}>Filter</Text>
-                    </TouchableOpacity>
+
+                    <View style={styles.divider} />
+
+                    {/* Stats Row */}
+                    <View style={styles.statsRow}>
+                        <View style={styles.statItem}>
+                            <Text style={styles.statLabel}>TOTAL RITASE</Text>
+                            <Text style={styles.statValue}>48 <Text style={styles.statUnit}>Trip</Text></Text>
+                        </View>
+                        <View style={styles.statItem}>
+                            <Text style={styles.statLabel}>TOTAL INSENTIF</Text>
+                            <Text style={styles.statValue}>Rp 5.250k</Text>
+                        </View>
+                    </View>
                 </View>
 
                 {/* List */}
@@ -103,20 +120,8 @@ export default function DriverHistory() {
                     keyExtractor={item => item.id}
                     contentContainerStyle={styles.listContent}
                     showsVerticalScrollIndicator={false}
-                    ListFooterComponent={() => <View style={{ height: 100 }} />}
+                    ListFooterComponent={() => <View style={{ height: 40 }} />} // Reduced footer height since floating footer is gone
                 />
-
-                {/* Summary Footer (Floating) */}
-                <View style={styles.footerSummary}>
-                    <View style={styles.summaryCardLight}>
-                        <Text style={styles.summaryLabel}>TOTAL RITASE</Text>
-                        <Text style={styles.summaryValueLight}>48 <Text style={styles.summaryUnit}>Trip</Text></Text>
-                    </View>
-                    <View style={styles.summaryCardDark}>
-                        <Text style={styles.summaryLabelDark}>TOTAL INSENTIF</Text>
-                        <Text style={styles.summaryValueDark}>Rp 5.250k</Text>
-                    </View>
-                </View>
             </View>
         </SafeAreaView>
     );
@@ -167,20 +172,22 @@ const styles = StyleSheet.create({
     calendarIcon: {
         fontSize: 16,
     },
-    filterSection: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: 24,
+    summarySection: {
         backgroundColor: '#FFFFFF',
         borderRadius: 16,
+        padding: 20,
         margin: 24,
         marginBottom: 16,
         shadowColor: '#64748B',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.05,
-        shadowRadius: 8,
+        shadowRadius: 12,
         elevation: 2,
+    },
+    periodRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
     filterLabel: {
         fontSize: 10,
@@ -211,6 +218,35 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontWeight: '600',
         color: '#0F172A',
+    },
+    divider: {
+        height: 1,
+        backgroundColor: '#F1F5F9',
+        marginVertical: 16,
+    },
+    statsRow: {
+        flexDirection: 'row',
+        gap: 16,
+    },
+    statItem: {
+        flex: 1,
+    },
+    statLabel: {
+        fontSize: 10,
+        fontWeight: '700',
+        color: '#64748B',
+        marginBottom: 4,
+        letterSpacing: 0.5,
+    },
+    statValue: {
+        fontSize: 18,
+        fontWeight: '800',
+        color: '#0F172A',
+    },
+    statUnit: {
+        fontSize: 12,
+        color: '#64748B',
+        fontWeight: '500',
     },
     listContent: {
         paddingHorizontal: 24,
@@ -278,64 +314,5 @@ const styles = StyleSheet.create({
     chevron: {
         fontSize: 20,
         color: '#94A3B8',
-    },
-    footerSummary: {
-        position: 'absolute',
-        bottom: 24,
-        left: 24,
-        right: 24,
-        flexDirection: 'row',
-        gap: 12,
-    },
-    summaryCardLight: {
-        flex: 1,
-        backgroundColor: '#FFFFFF',
-        padding: 16,
-        borderRadius: 16,
-        shadowColor: '#64748B',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 12,
-        elevation: 4,
-    },
-    summaryCardDark: {
-        flex: 1,
-        backgroundColor: '#0F172A',
-        padding: 16,
-        borderRadius: 16,
-        shadowColor: '#0F172A',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 12,
-        elevation: 4,
-    },
-    summaryLabel: {
-        fontSize: 10,
-        fontWeight: '700',
-        color: '#64748B',
-        marginBottom: 6,
-        letterSpacing: 1,
-    },
-    summaryLabelDark: {
-        fontSize: 10,
-        fontWeight: '700',
-        color: '#94A3B8',
-        marginBottom: 6,
-        letterSpacing: 1,
-    },
-    summaryValueLight: {
-        fontSize: 20,
-        fontWeight: '800',
-        color: '#0F172A',
-    },
-    summaryValueDark: {
-        fontSize: 20,
-        fontWeight: '800',
-        color: '#FFFFFF',
-    },
-    summaryUnit: {
-        fontSize: 12,
-        color: '#64748B',
-        fontWeight: '500',
     },
 });
