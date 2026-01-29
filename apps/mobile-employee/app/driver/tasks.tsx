@@ -95,13 +95,28 @@ export default function DriverTasks() {
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-                {/* Trip Info Summary */}
-                <View style={styles.tripSummary}>
-                    <View style={styles.tripBadge}>
-                        <Text style={styles.tripBadgeText}>UNIT: DT-1042</Text>
+                {/* Trip Info Card */}
+                <View style={styles.tripInfoCard}>
+                    <View style={styles.tripInfoRow}>
+                        <View>
+                            <Text style={styles.tripLabel}>UNIT</Text>
+                            <Text style={styles.tripValue}>DT-1042</Text>
+                        </View>
+                        <View style={{ alignItems: 'flex-end' }}>
+                            <Text style={styles.tripLabel}>MATERIAL</Text>
+                            <Text style={styles.tripValue}>Coal (Batubara)</Text>
+                        </View>
                     </View>
-                    <View style={styles.tripBadge}>
-                        <Text style={styles.tripBadgeText}>PIT A-01 → CPP MAIN</Text>
+                    <View style={styles.divider} />
+                    <View style={styles.tripInfoRow}>
+                        <View>
+                            <Text style={styles.tripLabel}>LOKASI ASAL</Text>
+                            <Text style={styles.tripValue}>PIT A-01</Text>
+                        </View>
+                        <View style={{ alignItems: 'flex-end' }}>
+                            <Text style={styles.tripLabel}>DRIVER</Text>
+                            <Text style={styles.tripValue}>John Doe</Text>
+                        </View>
                     </View>
                 </View>
 
@@ -335,23 +350,33 @@ const styles = StyleSheet.create({
     scrollContent: {
         padding: 24,
     },
-    tripSummary: {
-        flexDirection: 'row',
-        gap: 8,
+    tripInfoCard: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16,
+        padding: 16,
         marginBottom: 24,
-    },
-    tripBadge: {
-        backgroundColor: '#EFF6FF',
-        paddingVertical: 6,
-        paddingHorizontal: 12,
-        borderRadius: 8,
         borderWidth: 1,
-        borderColor: '#DBEAFE',
+        borderColor: '#E2E8F0',
     },
-    tripBadgeText: {
-        fontSize: 12,
+    tripInfoRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    tripLabel: {
+        fontSize: 10,
+        color: '#64748B',
         fontWeight: '700',
-        color: '#1E40AF',
+        marginBottom: 2,
+    },
+    tripValue: {
+        fontSize: 14,
+        fontWeight: '800',
+        color: '#0F172A',
+    },
+    divider: {
+        height: 1,
+        backgroundColor: '#F1F5F9',
+        marginVertical: 12,
     },
     // Step Card Styles
     stepCard: {
