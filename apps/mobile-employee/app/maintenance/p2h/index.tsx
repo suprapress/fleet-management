@@ -1,151 +1,48 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, TextInput, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, TextInput } from 'react-native';
 import { Stack, router } from 'expo-router';
-import { useState } from 'react';
 import { Feather } from '@expo/vector-icons';
+import { useState } from 'react';
 
-// --- DATA STRUCTURE ---
-type InspectionItem = {
-    id: string;
-    label: string;
-    critical: boolean;
-};
-
-type InspectionSection = {
-    id: string;
-    title: string;
-    icon: keyof typeof Feather.glyphMap;
-    items: InspectionItem[];
-};
-
-const INSPECTION_DATA: InspectionSection[] = [
-    {
-        id: 'external',
-        title: 'Pemeriksaan Luar',
-        icon: 'truck',
-        items: [
-            { id: 'ext_1', label: 'Kondisi Ban & Baut Roda', critical: true },
-            { id: 'ext_2', label: 'Kebocoran (Oli, Air, Fuel)', critical: true },
-            { id: 'ext_3', label: 'Kondisi Under carriage', critical: false },
-            { id: 'ext_4', label: 'Lampu Operasi & Sein', critical: true },
-            { id: 'ext_5', label: 'Body & Frame', critical: false },
-        ]
-    },
-    {
-        id: 'engine',
-        title: 'Kompartemen Mesin',
-        icon: 'cpu', // using cpu as engine placeholder or settings
-        items: [
-            { id: 'eng_1', label: 'Level Oli Mesin', critical: true },
-            { id: 'eng_2', label: 'Air Radiator (Coolant)', critical: true },
-            { id: 'eng_3', label: 'V-Belt & Kipas', critical: false },
-            { id: 'eng_4', label: 'Level Oli Hidrolik', critical: true },
-        ]
-    },
-    {
-        id: 'cabin',
-        title: 'Dalam Kabin',
-        icon: 'grid',
-        items: [
-            { id: 'cab_1', label: 'Rem Parkir & Service', critical: true },
-            { id: 'cab_2', label: 'Steering & Klakson', critical: true },
-            { id: 'cab_3', label: 'Seat Belt (Sabuk Pengaman)', critical: true },
-            { id: 'cab_4', label: 'Instrumen Panel & Gauges', critical: false },
-            { id: 'cab_5', label: 'AC & Wiper', critical: false },
-        ]
-    }
+// Dummy data for vehicles
+const VEHICLES = [
+    { id: 'DT-1042', type: 'Dump Truck', status: 'pending', lastCheck: 'Kemarin' },
+    { id: 'DT-1043', type: 'Dump Truck', status: 'done', lastCheck: 'Hari ini, 06:30' },
+    { id: 'EX-205', type: 'Excavator', status: 'pending', lastCheck: 'Kemarin' },
+    { id: 'LV-05', type: 'Light Vehicle', status: 'pending', lastCheck: 'Kemarin' },
+    { id: 'DZ-11', type: 'Dozer', status: 'issue', lastCheck: 'Hari ini, 07:15' },
 ];
 
-// --- TYPES ---
-type ItemStatus = 'ok' | 'issue' | null;
+export default function P2HUnitList() {
+    const [searchQuery, setSearchQuery] = useState('');
 
-interface InspectionState {
-    status: ItemStatus;
-    reason: string;
-}
+    const filteredVehicles = VEHICLES.filter(v =>
+        v.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        v.type.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
-export default function P2HChecklist() {
-    // --- STATE ---
-    // Memory to store state of each item: { [itemId]: { status: 'ok'|'issue', reason: '' } }
-    const [inspectionData, setInspectionData] = useState<Record<string, InspectionState>>({});
-    const [submitting, setSubmitting] = useState(false);
-
-    // --- ACTIONS ---
-    const handleStatusChange = (itemId: string, status: ItemStatus) => {
-        setInspectionData(prev => ({
-            ...prev,
-            [itemId]: {
-                status: status,
-                reason: status === 'ok' ? '' : (prev[itemId]?.reason || '')
-            }
-        }));
-    };
-
-    const handleReasonChange = (itemId: string, text: string) => {
-        setInspectionData(prev => ({
-            ...prev,
-            [itemId]: {
-                ...prev[itemId],
-                reason: text
-            }
-        }));
-    };
-
-    const calculateProgress = () => {
-        let totalItems = 0;
-        let checkedItems = 0;
-        let issueItems = 0;
-
-        INSPECTION_DATA.forEach(section => {
-            section.items.forEach(item => {
-                totalItems++;
-                const itemState = inspectionData[item.id];
-                if (itemState && itemState.status !== null) {
-                    checkedItems++;
-                    if (itemState.status === 'issue') issueItems++;
-                }
-            });
-        });
-
-        return { totalItems, checkedItems, issueItems };
-    };
-
-    const handleSubmit = () => {
-        const { totalItems, checkedItems, issueItems } = calculateProgress();
-
-        if (checkedItems < totalItems) {
-            Alert.alert(
-                'Pemeriksaan Belum Selesai',
-                `Anda baru memeriksa ${checkedItems} dari ${totalItems} item. Mohon lengkapi pemeriksaan.`
-            );
-            return;
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case 'done': return '#22C55E'; // Green
+            case 'issue': return '#EF4444'; // Red
+            default: return '#94A3B8'; // Gray for pending
         }
-
-        // Validate reasons for issues
-        const missingReason = Object.entries(inspectionData).find(([_, data]) => data.status === 'issue' && !data.reason.trim());
-        if (missingReason) {
-            Alert.alert(
-                'Alasan Dibutuhkan',
-                'Mohon isi keterangan untuk item yang bermasalah.'
-            );
-            return;
-        }
-
-        setSubmitting(true);
-
-        // Simulate API call
-        setTimeout(() => {
-            setSubmitting(false);
-            Alert.alert(
-                'Laporan Terkirim',
-                `P2H Berhasil Disimpan.\nTotal Item: ${totalItems}\nKondisi Baik: ${checkedItems - issueItems}\nTemuan Masalah: ${issueItems}`,
-                [
-                    { text: 'OK', onPress: () => router.back() }
-                ]
-            );
-        }, 1500);
     };
 
-    const { totalItems, checkedItems } = calculateProgress();
+    const getStatusText = (status: string) => {
+        switch (status) {
+            case 'done': return 'Sudah Diperiksa';
+            case 'issue': return 'Perlu Perbaikan';
+            default: return 'Belum Diperiksa';
+        }
+    };
+
+    const getStatusIcon = (status: string) => {
+        switch (status) {
+            case 'done': return 'check-circle';
+            case 'issue': return 'alert-circle';
+            default: return 'circle';
+        }
+    };
 
     return (
         <SafeAreaView style={styles.safeArea}>
@@ -157,129 +54,59 @@ export default function P2HChecklist() {
                     <Feather name="chevron-left" size={24} color="#3B82F6" />
                     <Text style={styles.backText}>Kembali</Text>
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>FORMULIR P2H</Text>
+                <Text style={styles.headerTitle}>DAFTAR UNIT P2H</Text>
                 <View style={{ width: 80 }} />
             </View>
 
-            <View style={styles.unitInfoBar}>
-                <View>
-                    <Text style={styles.unitLabel}>UNIT NUMBER</Text>
-                    <Text style={styles.unitCode}>DT-1042</Text>
-                </View>
-                <View style={styles.progressBox}>
-                    <Text style={styles.progressLabel}>PROGRES</Text>
-                    <Text style={styles.progressText}>{checkedItems}/{totalItems}</Text>
+            {/* Search Bar */}
+            <View style={styles.searchContainer}>
+                <View style={styles.searchBox}>
+                    <Feather name="search" size={20} color="#94A3B8" />
+                    <TextInput
+                        style={styles.searchInput}
+                        placeholder="Cari Unit ID atau Tipe..."
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                        placeholderTextColor="#94A3B8"
+                    />
                 </View>
             </View>
 
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+            <ScrollView contentContainerStyle={styles.listContent}>
+                <Text style={styles.sectionTitle}>Pilih Unit untuk Pemeriksaan</Text>
 
-                {INSPECTION_DATA.map((section) => (
-                    <View key={section.id} style={styles.sectionContainer}>
-                        <View style={styles.sectionHeader}>
-                            <View style={styles.sectionIcon}>
-                                <Feather name={section.icon} size={18} color="#FFFFFF" />
-                            </View>
-                            <Text style={styles.sectionTitle}>{section.title}</Text>
+                {filteredVehicles.map((vehicle) => (
+                    <TouchableOpacity
+                        key={vehicle.id}
+                        style={styles.vehicleCard}
+                        onPress={() => router.push(`/maintenance/p2h/${vehicle.id}`)}
+                    >
+                        <View style={styles.vehicleIcon}>
+                            <Feather name="truck" size={24} color="#334155" />
                         </View>
 
-                        <View style={styles.sectionItems}>
-                            {section.items.map((item) => {
-                                const itemState = inspectionData[item.id] || { status: null, reason: '' };
-                                const isOk = itemState.status === 'ok';
-                                const isIssue = itemState.status === 'issue';
-
-                                return (
-                                    <View key={item.id} style={styles.itemRow}>
-                                        <View style={styles.itemMainRow}>
-                                            <View style={styles.itemLabelContainer}>
-                                                <Text style={styles.itemLabel}>{item.label}</Text>
-                                                {item.critical && (
-                                                    <View style={styles.criticalBadge}>
-                                                        <Text style={styles.criticalText}>KRITIS</Text>
-                                                    </View>
-                                                )}
-                                            </View>
-
-                                            <View style={styles.itemActions}>
-                                                {/* OK Button */}
-                                                <TouchableOpacity
-                                                    style={[styles.statusBtn, isOk && styles.statusBtnOkActive]}
-                                                    onPress={() => handleStatusChange(item.id, 'ok')}
-                                                >
-                                                    {isOk ? (
-                                                        <Feather name="check-circle" size={24} color="#166534" />
-                                                    ) : (
-                                                        <Feather name="circle" size={24} color="#CBD5E1" />
-                                                    )}
-                                                </TouchableOpacity>
-
-                                                {/* Issue Button */}
-                                                <TouchableOpacity
-                                                    style={[styles.statusBtn, isIssue && styles.statusBtnIssueActive]}
-                                                    onPress={() => handleStatusChange(item.id, 'issue')}
-                                                >
-                                                    {isIssue ? (
-                                                        <Feather name="alert-triangle" size={24} color="#DC2626" />
-                                                    ) : (
-                                                        <Feather name="circle" size={24} color="#CBD5E1" />
-                                                    )}
-                                                </TouchableOpacity>
-                                            </View>
-                                        </View>
-
-                                        {/* Status Text / Reason Input */}
-                                        <View style={styles.statusDetails}>
-                                            {isOk && (
-                                                <Text style={styles.okText}>Kondisi Baik</Text>
-                                            )}
-
-                                            {isIssue && (
-                                                <View style={styles.issueInputContainer}>
-                                                    <Text style={styles.issueLabelText}>Jelaskan Masalah:</Text>
-                                                    <TextInput
-                                                        style={styles.textInput}
-                                                        placeholder="Contoh: Retak halus, bunyi kasar, dll..."
-                                                        placeholderTextColor="#94A3B8"
-                                                        value={itemState.reason}
-                                                        onChangeText={(text) => handleReasonChange(item.id, text)}
-                                                    />
-                                                </View>
-                                            )}
-
-                                            {itemState.status === null && (
-                                                <Text style={styles.pendingText}>Belum diperiksa</Text>
-                                            )}
-                                        </View>
-                                    </View>
-                                );
-                            })}
+                        <View style={styles.vehicleInfo}>
+                            <Text style={styles.vehicleId}>{vehicle.id}</Text>
+                            <Text style={styles.vehicleType}>{vehicle.type}</Text>
+                            <Text style={styles.lastCheck}>Terakhir: {vehicle.lastCheck}</Text>
                         </View>
-                    </View>
+
+                        <View style={styles.statusContainer}>
+                            <Feather name={getStatusIcon(vehicle.status) as any} size={16} color={getStatusColor(vehicle.status)} />
+                            <Text style={[styles.statusText, { color: getStatusColor(vehicle.status) }]}>
+                                {getStatusText(vehicle.status)}
+                            </Text>
+                        </View>
+
+                        <Feather name="chevron-right" size={20} color="#CBD5E1" />
+                    </TouchableOpacity>
                 ))}
 
-                <View style={styles.summarySection}>
-                    <Text style={styles.disclaimer}>
-                        Dengan mengirimkan laporan ini, saya menyatakan bahwa pemeriksaan telah dilakukan dengan sebenar-benarnya sesuai prosedur yang berlaku.
-                    </Text>
-
-                    <TouchableOpacity
-                        style={[styles.submitButton, submitting && styles.submitButtonDisabled]}
-                        onPress={handleSubmit}
-                        disabled={submitting}
-                    >
-                        {submitting ? (
-                            <ActivityIndicator color="#FFFFFF" />
-                        ) : (
-                            <>
-                                <Feather name="send" size={20} color="#FFFFFF" style={{ marginRight: 10 }} />
-                                <Text style={styles.submitButtonText}>KIRIM LAPORAN P2H</Text>
-                            </>
-                        )}
-                    </TouchableOpacity>
-                </View>
-
-                <View style={{ height: 40 }} />
+                {filteredVehicles.length === 0 && (
+                    <View style={styles.emptyState}>
+                        <Text style={styles.emptyText}>Unit tidak ditemukan</Text>
+                    </View>
+                )}
             </ScrollView>
         </SafeAreaView>
     );
@@ -316,192 +143,94 @@ const styles = StyleSheet.create({
         color: '#0F172A',
         letterSpacing: 1,
     },
-    unitInfoBar: {
+    searchContainer: {
+        padding: 16,
+        backgroundColor: '#FFFFFF',
+        borderBottomWidth: 1,
+        borderBottomColor: '#F1F5F9',
+    },
+    searchBox: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: '#F1F5F9',
+        borderRadius: 12,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+    },
+    searchInput: {
+        flex: 1,
+        marginLeft: 8,
+        fontSize: 14,
+        color: '#0F172A',
+        height: 40,
+    },
+    listContent: {
+        padding: 16,
+        paddingBottom: 40,
+    },
+    sectionTitle: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: '#64748B',
+        marginBottom: 12,
+        marginLeft: 4,
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+    },
+    vehicleCard: {
+        flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#FFFFFF',
-        paddingHorizontal: 24,
-        paddingVertical: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: '#E2E8F0',
-        marginBottom: 16,
-    },
-    unitLabel: {
-        fontSize: 10,
-        color: '#64748B',
-        fontWeight: '700',
-    },
-    unitCode: {
-        fontSize: 20,
-        fontWeight: '800',
-        color: '#0F172A',
-    },
-    progressBox: {
-        alignItems: 'flex-end',
-    },
-    progressLabel: {
-        fontSize: 10,
-        color: '#64748B',
-        fontWeight: '700',
-    },
-    progressText: {
-        fontSize: 16,
-        fontWeight: '800',
-        color: '#3B82F6',
-    },
-    scrollContent: {
         padding: 16,
-    },
-    sectionContainer: {
-        marginBottom: 24,
-        backgroundColor: '#FFFFFF',
         borderRadius: 16,
-        overflow: 'hidden',
+        marginBottom: 12,
         shadowColor: '#64748B',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.05,
         shadowRadius: 8,
         elevation: 2,
     },
-    sectionHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#1E293B',
-        padding: 12,
-    },
-    sectionIcon: {
-        width: 32,
-        height: 32,
-        borderRadius: 16,
-        backgroundColor: 'rgba(255,255,255,0.1)',
+    vehicleIcon: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        backgroundColor: '#F1F5F9',
         alignItems: 'center',
         justifyContent: 'center',
-        marginRight: 12,
+        marginRight: 16,
     },
-    sectionTitle: {
-        fontSize: 14,
-        fontWeight: '700',
-        color: '#FFFFFF',
-    },
-    sectionItems: {
-        padding: 8,
-    },
-    itemRow: {
-        padding: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: '#F1F5F9',
-    },
-    itemMainRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 8,
-    },
-    itemLabelContainer: {
+    vehicleInfo: {
         flex: 1,
-        paddingRight: 12,
     },
-    itemLabel: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#334155',
-        marginBottom: 4,
-    },
-    criticalBadge: {
-        backgroundColor: '#FEF2F2',
-        paddingVertical: 2,
-        paddingHorizontal: 6,
-        borderRadius: 4,
-        alignSelf: 'flex-start',
-        borderWidth: 1,
-        borderColor: '#FECACA',
-    },
-    criticalText: {
-        fontSize: 8,
-        fontWeight: '800',
-        color: '#EF4444',
-    },
-    itemActions: {
-        flexDirection: 'row',
-        gap: 12,
-    },
-    statusBtn: {
-        padding: 4,
-    },
-    statusBtnOkActive: {
-        // Optional active state styling
-    },
-    statusBtnIssueActive: {
-        // Optional active state styling
-    },
-    statusDetails: {
-        marginTop: 4,
-    },
-    okText: {
-        fontSize: 12,
-        color: '#166534',
-        fontWeight: '500',
-    },
-    pendingText: {
-        fontSize: 12,
-        color: '#94A3B8',
-        fontStyle: 'italic',
-    },
-    issueInputContainer: {
-        backgroundColor: '#FEF2F2',
-        padding: 12,
-        borderRadius: 8,
-        marginTop: 4,
-    },
-    issueLabelText: {
-        fontSize: 10,
-        fontWeight: '700',
-        color: '#991B1B',
-        marginBottom: 4,
-    },
-    textInput: {
-        backgroundColor: '#FFFFFF',
-        borderWidth: 1,
-        borderColor: '#FECACA',
-        borderRadius: 6,
-        padding: 8,
-        fontSize: 12,
-        color: '#0F172A',
-        minHeight: 40,
-    },
-    summarySection: {
-        marginTop: 16,
-        padding: 16,
-    },
-    disclaimer: {
-        fontSize: 12,
-        color: '#64748B',
-        textAlign: 'center',
-        marginBottom: 24,
-        lineHeight: 18,
-    },
-    submitButton: {
-        backgroundColor: '#2563EB',
-        borderRadius: 16,
-        paddingVertical: 18,
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        shadowColor: '#2563EB',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 12,
-        elevation: 4,
-    },
-    submitButtonDisabled: {
-        backgroundColor: '#94A3B8',
-        shadowOpacity: 0,
-    },
-    submitButtonText: {
-        color: '#FFFFFF',
+    vehicleId: {
         fontSize: 16,
         fontWeight: '800',
-        letterSpacing: 0.5,
+        color: '#0F172A',
+    },
+    vehicleType: {
+        fontSize: 12,
+        color: '#64748B',
+        marginBottom: 2,
+    },
+    lastCheck: {
+        fontSize: 10,
+        color: '#94A3B8',
+    },
+    statusContainer: {
+        alignItems: 'flex-end',
+        marginRight: 12,
+        gap: 2,
+    },
+    statusText: {
+        fontSize: 10,
+        fontWeight: '700',
+    },
+    emptyState: {
+        padding: 40,
+        alignItems: 'center',
+    },
+    emptyText: {
+        color: '#94A3B8',
+        fontStyle: 'italic',
     },
 });
