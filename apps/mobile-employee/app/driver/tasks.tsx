@@ -45,27 +45,33 @@ const PhotoUploadBox = ({ label, icon, onPress, value }) => (
     </TouchableOpacity>
 );
 
-const TaskStep = ({ title, isActive, isCompleted, children, onExpand }) => {
+const TaskStep = ({ title, isActive, isCompleted, isLast, children, onExpand }) => {
     return (
-        <View style={[styles.stepCard, isActive && styles.stepCardActive]}>
-            <TouchableOpacity style={styles.stepHeader} onPress={onExpand}>
-                <View style={styles.stepHeaderLeft}>
-                    <View style={[
-                        styles.stepIcon,
-                        isCompleted ? styles.stepIconDone : (isActive ? styles.stepIconActive : styles.stepIconPending)
-                    ]}>
-                        {isCompleted ? <Feather name="check" size={16} color="#FFF" /> : <Text style={styles.stepNumber}>{isActive || isCompleted ? '•' : '○'}</Text>}
-                    </View>
-                    <Text style={[styles.stepTitle, isActive && styles.stepTitleActive]}>{title}</Text>
+        <View style={styles.stepContainer}>
+            {/* Left Column: Icon + Line */}
+            <View style={styles.stepLeft}>
+                <View style={[
+                    styles.stepIcon,
+                    isCompleted ? styles.stepIconDone : (isActive ? styles.stepIconActive : styles.stepIconPending)
+                ]}>
+                    {isCompleted ? <Feather name="check" size={14} color="#FFF" /> : <Text style={[styles.stepNumber, isActive && styles.stepNumberActive]}>{isActive || isCompleted ? '•' : '○'}</Text>}
                 </View>
-                <Feather name={isActive ? "chevron-up" : "chevron-down"} size={20} color="#64748B" />
-            </TouchableOpacity>
+                {!isLast && <View style={styles.stepLine} />}
+            </View>
 
-            {isActive && (
-                <View style={styles.stepBody}>
-                    {children}
-                </View>
-            )}
+            {/* Right Column: Header + Body */}
+            <View style={styles.stepRight}>
+                <TouchableOpacity style={styles.stepHeader} onPress={onExpand}>
+                    <Text style={[styles.stepTitle, isActive && styles.stepTitleActive]}>{title}</Text>
+                    <Feather name={isActive ? "chevron-up" : "chevron-down"} size={20} color="#64748B" />
+                </TouchableOpacity>
+
+                {isActive && (
+                    <View style={styles.stepBody}>
+                        {children}
+                    </View>
+                )}
+            </View>
         </View>
     );
 };
@@ -120,202 +126,206 @@ export default function DriverTasks() {
                     </View>
                 </View>
 
-                {/* Step 1: Persiapan & Identitas */}
-                <TaskStep
-                    title="1. Persiapan & Identitas (Check-in)"
-                    isActive={expandedStep === 1}
-                    isCompleted={expandedStep > 1}
-                    onExpand={() => setExpandedStep(expandedStep === 1 ? 0 : 1)}
-                >
-                    <Text style={styles.instructionText}>Pastikan aset dan personel siap sebelum berangkat.</Text>
+                {/* Timeline Container */}
+                <View style={styles.timelineCard}>
+                    {/* Step 1: Persiapan & Identitas */}
+                    <TaskStep
+                        title="1. Persiapan & Identitas (Check-in)"
+                        isActive={expandedStep === 1}
+                        isCompleted={expandedStep > 1}
+                        onExpand={() => setExpandedStep(expandedStep === 1 ? 0 : 1)}
+                    >
+                        <Text style={styles.instructionText}>Pastikan aset dan personel siap sebelum berangkat.</Text>
 
-                    <InputField
-                        label="KILOMETER AWAL (ODOMETER)"
-                        placeholder="0000.0"
-                        keyboardType="numeric"
-                        required
-                    />
-
-                    <InputField
-                        label="SISA BAHAN BAKAR (FUEL)"
-                        placeholder="0"
-                        unit="Bar/Percent"
-                        keyboardType="numeric"
-                    />
-
-                    <Text style={styles.sectionLabel}>FOTO BUKTI</Text>
-                    <View style={styles.photoGrid}>
-                        <PhotoUploadBox
-                            label="FOTO UNIT & DRIVER"
-                            icon="user"
-                            onPress={() => handlePhotoUpload('Foto Driver & Unit')}
+                        <InputField
+                            label="KILOMETER AWAL (ODOMETER)"
+                            placeholder="0000.0"
+                            keyboardType="numeric"
+                            required
                         />
-                        <PhotoUploadBox
-                            label="FOTO ODOMETER"
-                            icon="disc"
-                            onPress={() => handlePhotoUpload('Foto Odometer')}
+
+                        <InputField
+                            label="SISA BAHAN BAKAR (FUEL)"
+                            placeholder="0"
+                            unit="Bar/Percent"
+                            keyboardType="numeric"
                         />
-                    </View>
 
-                    <TouchableOpacity style={styles.nextButton} onPress={() => setExpandedStep(2)}>
-                        <Text style={styles.nextButtonText}>Simpan & Lanjut</Text>
-                    </TouchableOpacity>
-                </TaskStep>
+                        <Text style={styles.sectionLabel}>FOTO BUKTI</Text>
+                        <View style={styles.photoGrid}>
+                            <PhotoUploadBox
+                                label="FOTO UNIT & DRIVER"
+                                icon="user"
+                                onPress={() => handlePhotoUpload('Foto Driver & Unit')}
+                            />
+                            <PhotoUploadBox
+                                label="FOTO ODOMETER"
+                                icon="disc"
+                                onPress={() => handlePhotoUpload('Foto Odometer')}
+                            />
+                        </View>
 
-                {/* Step 2: Pemuatan (Loading) */}
-                <TaskStep
-                    title="2. Pemuatan (Loading di Pit)"
-                    isActive={expandedStep === 2}
-                    isCompleted={expandedStep > 2}
-                    onExpand={() => setExpandedStep(expandedStep === 2 ? 0 : 2)}
-                >
-                    <InputField
-                        label="JUMLAH BUCKET"
-                        placeholder="0"
-                        keyboardType="numeric"
-                        required
-                    />
-                    <InputField
-                        label="NAMA OPERATOR / ALAT"
-                        placeholder="Contoh: PC-200 / Budi"
-                        required
-                    />
+                        <TouchableOpacity style={styles.nextButton} onPress={() => setExpandedStep(2)}>
+                            <Text style={styles.nextButtonText}>Simpan & Lanjut</Text>
+                        </TouchableOpacity>
+                    </TaskStep>
 
-                    <Text style={styles.sectionLabel}>FOTO BUKTI</Text>
-                    <View style={styles.photoGrid}>
-                        <PhotoUploadBox
-                            label="SLIP LOADING"
-                            icon="file-text"
-                            onPress={() => handlePhotoUpload('Slip Loading')}
+                    {/* Step 2: Pemuatan (Loading) */}
+                    <TaskStep
+                        title="2. Pemuatan (Loading di Pit)"
+                        isActive={expandedStep === 2}
+                        isCompleted={expandedStep > 2}
+                        onExpand={() => setExpandedStep(expandedStep === 2 ? 0 : 2)}
+                    >
+                        <InputField
+                            label="JUMLAH BUCKET"
+                            placeholder="0"
+                            keyboardType="numeric"
+                            required
                         />
-                    </View>
-
-                    <TouchableOpacity style={styles.nextButton} onPress={() => setExpandedStep(3)}>
-                        <Text style={styles.nextButtonText}>Simpan & Lanjut</Text>
-                    </TouchableOpacity>
-                </TaskStep>
-
-                {/* Step 3: Penimbangan Awal */}
-                <TaskStep
-                    title="3. Penimbangan Awal (Gross)"
-                    isActive={expandedStep === 3}
-                    isCompleted={expandedStep > 3}
-                    onExpand={() => setExpandedStep(expandedStep === 3 ? 0 : 3)}
-                >
-                    <InputField
-                        label="BERAT GROSS (KG/TON)"
-                        placeholder="0"
-                        keyboardType="numeric"
-                        required
-                    />
-
-                    <Text style={styles.sectionLabel}>FOTO BUKTI</Text>
-                    <View style={styles.photoGrid}>
-                        <PhotoUploadBox
-                            label="STRUK TIMBANGAN"
-                            icon="camera"
-                            onPress={() => handlePhotoUpload('Struk Timbangan Gross')}
+                        <InputField
+                            label="NAMA OPERATOR / ALAT"
+                            placeholder="Contoh: PC-200 / Budi"
+                            required
                         />
-                    </View>
 
-                    <TouchableOpacity style={styles.nextButton} onPress={() => setExpandedStep(4)}>
-                        <Text style={styles.nextButtonText}>Simpan & Lanjut</Text>
-                    </TouchableOpacity>
-                </TaskStep>
+                        <Text style={styles.sectionLabel}>FOTO BUKTI</Text>
+                        <View style={styles.photoGrid}>
+                            <PhotoUploadBox
+                                label="SLIP LOADING"
+                                icon="file-text"
+                                onPress={() => handlePhotoUpload('Slip Loading')}
+                            />
+                        </View>
 
-                {/* Step 4: Perjalanan & Insiden */}
-                <TaskStep
-                    title="4. Perjalanan & Insiden"
-                    isActive={expandedStep === 4}
-                    isCompleted={expandedStep > 4}
-                    onExpand={() => setExpandedStep(expandedStep === 4 ? 0 : 4)}
-                >
-                    <Text style={styles.instructionText}>Laporkan jika ada kendala di jalan, jika lancar silakan lanjut.</Text>
+                        <TouchableOpacity style={styles.nextButton} onPress={() => setExpandedStep(3)}>
+                            <Text style={styles.nextButtonText}>Simpan & Lanjut</Text>
+                        </TouchableOpacity>
+                    </TaskStep>
 
-                    <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#FEF2F2', borderColor: '#FECACA' }]}>
-                        <Feather name="alert-triangle" size={18} color="#EF4444" />
-                        <Text style={[styles.actionButtonText, { color: '#B91C1C' }]}>Lapor Breakdown / Insiden</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={styles.nextButton} onPress={() => setExpandedStep(5)}>
-                        <Text style={styles.nextButtonText}>Perjalanan Lancar (Lanjut)</Text>
-                    </TouchableOpacity>
-                </TaskStep>
-
-                {/* Step 5: Bongkar & Timbang Akhir */}
-                <TaskStep
-                    title="5. Bongkar & Timbang Akhir (Tare)"
-                    isActive={expandedStep === 5}
-                    isCompleted={expandedStep > 5}
-                    onExpand={() => setExpandedStep(expandedStep === 5 ? 0 : 5)}
-                >
-                    <InputField
-                        label="BERAT KOSONG / TARE (KG/TON)"
-                        placeholder="0"
-                        keyboardType="numeric"
-                        required
-                    />
-
-                    <Text style={styles.sectionLabel}>FOTO BUKTI</Text>
-                    <View style={styles.photoGrid}>
-                        <PhotoUploadBox
-                            label="STRUK TARE"
-                            icon="file-minus"
-                            onPress={() => handlePhotoUpload('Struk Tare')}
+                    {/* Step 3: Penimbangan Awal */}
+                    <TaskStep
+                        title="3. Penimbangan Awal (Gross)"
+                        isActive={expandedStep === 3}
+                        isCompleted={expandedStep > 3}
+                        onExpand={() => setExpandedStep(expandedStep === 3 ? 0 : 3)}
+                    >
+                        <InputField
+                            label="BERAT GROSS (KG/TON)"
+                            placeholder="0"
+                            keyboardType="numeric"
+                            required
                         />
-                    </View>
 
-                    <TouchableOpacity style={styles.nextButton} onPress={() => setExpandedStep(6)}>
-                        <Text style={styles.nextButtonText}>Simpan & Lanjut</Text>
-                    </TouchableOpacity>
-                </TaskStep>
+                        <Text style={styles.sectionLabel}>FOTO BUKTI</Text>
+                        <View style={styles.photoGrid}>
+                            <PhotoUploadBox
+                                label="STRUK TIMBANGAN"
+                                icon="camera"
+                                onPress={() => handlePhotoUpload('Struk Timbangan Gross')}
+                            />
+                        </View>
 
-                {/* Step 6: Refueling */}
-                <TaskStep
-                    title="6. Pengisian Bahan Bakar"
-                    isActive={expandedStep === 6}
-                    isCompleted={expandedStep > 6}
-                    onExpand={() => setExpandedStep(expandedStep === 6 ? 0 : 6)}
-                >
-                    <InputField
-                        label="HM UNIT (HOUR METER)"
-                        placeholder="0000.0"
-                        keyboardType="numeric"
-                        required
-                        warning="Pastikan HM lebih besar dari sebelumnya"
-                    />
+                        <TouchableOpacity style={styles.nextButton} onPress={() => setExpandedStep(4)}>
+                            <Text style={styles.nextButtonText}>Simpan & Lanjut</Text>
+                        </TouchableOpacity>
+                    </TaskStep>
 
-                    <InputField
-                        label="JUMLAH LITER"
-                        placeholder="0"
-                        unit="Ltr"
-                        keyboardType="numeric"
-                        required
-                    />
+                    {/* Step 4: Perjalanan & Insiden */}
+                    <TaskStep
+                        title="4. Perjalanan & Insiden"
+                        isActive={expandedStep === 4}
+                        isCompleted={expandedStep > 4}
+                        onExpand={() => setExpandedStep(expandedStep === 4 ? 0 : 4)}
+                    >
+                        <Text style={styles.instructionText}>Laporkan jika ada kendala di jalan, jika lancar silakan lanjut.</Text>
 
-                    <Text style={styles.sectionLabel}>FOTO BUKTI</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.photoRow}>
-                        <PhotoUploadBox
-                            label="FOTO NOTA"
-                            icon="file-text"
-                            onPress={() => handlePhotoUpload('Foto Nota Solar')}
+                        <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#FEF2F2', borderColor: '#FECACA' }]}>
+                            <Feather name="alert-triangle" size={18} color="#EF4444" />
+                            <Text style={[styles.actionButtonText, { color: '#B91C1C' }]}>Lapor Breakdown / Insiden</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.nextButton} onPress={() => setExpandedStep(5)}>
+                            <Text style={styles.nextButtonText}>Perjalanan Lancar (Lanjut)</Text>
+                        </TouchableOpacity>
+                    </TaskStep>
+
+                    {/* Step 5: Bongkar & Timbang Akhir */}
+                    <TaskStep
+                        title="5. Bongkar & Timbang Akhir (Tare)"
+                        isActive={expandedStep === 5}
+                        isCompleted={expandedStep > 5}
+                        onExpand={() => setExpandedStep(expandedStep === 5 ? 0 : 5)}
+                    >
+                        <InputField
+                            label="BERAT KOSONG / TARE (KG/TON)"
+                            placeholder="0"
+                            keyboardType="numeric"
+                            required
                         />
-                        <PhotoUploadBox
-                            label="FOTO METERAN"
-                            icon="maximize"
-                            onPress={() => handlePhotoUpload('Foto Meteran Dispenser')}
-                        />
-                        <PhotoUploadBox
-                            label="FOTO UNIT"
-                            icon="truck"
-                            onPress={() => handlePhotoUpload('Foto Unit Refuel')}
-                        />
-                    </ScrollView>
 
-                    <TouchableOpacity style={[styles.nextButton, { backgroundColor: '#10B981', marginTop: 24 }]}>
-                        <Text style={styles.nextButtonText}>Selesaikan Tugas Ritase</Text>
-                    </TouchableOpacity>
-                </TaskStep>
+                        <Text style={styles.sectionLabel}>FOTO BUKTI</Text>
+                        <View style={styles.photoGrid}>
+                            <PhotoUploadBox
+                                label="STRUK TARE"
+                                icon="file-minus"
+                                onPress={() => handlePhotoUpload('Struk Tare')}
+                            />
+                        </View>
+
+                        <TouchableOpacity style={styles.nextButton} onPress={() => setExpandedStep(6)}>
+                            <Text style={styles.nextButtonText}>Simpan & Lanjut</Text>
+                        </TouchableOpacity>
+                    </TaskStep>
+
+                    {/* Step 6: Refueling */}
+                    <TaskStep
+                        title="6. Pengisian Bahan Bakar"
+                        isActive={expandedStep === 6}
+                        isCompleted={expandedStep > 6}
+                        onExpand={() => setExpandedStep(expandedStep === 6 ? 0 : 6)}
+                        isLast={true}
+                    >
+                        <InputField
+                            label="HM UNIT (HOUR METER)"
+                            placeholder="0000.0"
+                            keyboardType="numeric"
+                            required
+                            warning="Pastikan HM lebih besar dari sebelumnya"
+                        />
+
+                        <InputField
+                            label="JUMLAH LITER"
+                            placeholder="0"
+                            unit="Ltr"
+                            keyboardType="numeric"
+                            required
+                        />
+
+                        <Text style={styles.sectionLabel}>FOTO BUKTI</Text>
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.photoRow}>
+                            <PhotoUploadBox
+                                label="FOTO NOTA"
+                                icon="file-text"
+                                onPress={() => handlePhotoUpload('Foto Nota Solar')}
+                            />
+                            <PhotoUploadBox
+                                label="FOTO METERAN"
+                                icon="maximize"
+                                onPress={() => handlePhotoUpload('Foto Meteran Dispenser')}
+                            />
+                            <PhotoUploadBox
+                                label="FOTO UNIT"
+                                icon="truck"
+                                onPress={() => handlePhotoUpload('Foto Unit Refuel')}
+                            />
+                        </ScrollView>
+
+                        <TouchableOpacity style={[styles.nextButton, { backgroundColor: '#10B981', marginTop: 24 }]}>
+                            <Text style={styles.nextButtonText}>Selesaikan Tugas Ritase</Text>
+                        </TouchableOpacity>
+                    </TaskStep>
+                </View>
 
                 <View style={{ height: 50 }} />
             </ScrollView>
@@ -378,55 +388,72 @@ const styles = StyleSheet.create({
         backgroundColor: '#F1F5F9',
         marginVertical: 12,
     },
-    // Step Card Styles
-    stepCard: {
+    // Timeline Styles
+    timelineCard: {
         backgroundColor: '#FFFFFF',
+        borderRadius: 20,
+        padding: 20,
+        shadowColor: '#64748B',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.05,
+        shadowRadius: 12,
+        elevation: 2,
+        marginBottom: 24,
+    },
+    stepContainer: {
+        flexDirection: 'row',
+    },
+    stepLeft: {
+        alignItems: 'center',
+        marginRight: 16,
+    },
+    stepRight: {
+        flex: 1,
+        paddingBottom: 16,
+    },
+    stepIcon: {
+        width: 32,
+        height: 32,
         borderRadius: 16,
-        marginBottom: 16,
-        overflow: 'hidden',
-        borderWidth: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 2, // Ensure icon is above line
+        backgroundColor: '#FFFFFF',
+    },
+    stepIconActive: {
+        borderColor: '#EAB308', // Amber 500
+        borderWidth: 4,
+    },
+    stepIconDone: {
+        backgroundColor: '#22C55E', // Green 500
+        borderColor: '#22C55E',
+        borderWidth: 2,
+    },
+    stepIconPending: {
+        backgroundColor: '#F1F5F9', // Slate 100
         borderColor: '#E2E8F0',
     },
-    stepCardActive: {
-        borderColor: '#3B82F6',
-        backgroundColor: '#F8FAFC', // Slightly different bg when active?
+    stepNumber: {
+        fontSize: 14,
+        fontWeight: '800',
+        color: '#CBD5E1',
+    },
+    stepNumberActive: {
+        color: '#EAB308',
+    },
+    stepLine: {
+        width: 2,
+        flex: 1,
+        backgroundColor: '#E2E8F0', // Slate 200
+        marginVertical: 4,
+        minHeight: 24,
     },
     stepHeader: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: 16,
-        backgroundColor: '#FFFFFF',
-    },
-    stepHeaderLeft: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 12,
-    },
-    stepIcon: {
-        width: 24,
-        height: 24,
-        borderRadius: 12,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderWidth: 2,
-        borderColor: '#CBD5E1',
-    },
-    stepIconActive: {
-        borderColor: '#3B82F6',
-        backgroundColor: '#3B82F6',
-    },
-    stepIconDone: {
-        borderColor: '#22C55E',
-        backgroundColor: '#22C55E',
-    },
-    stepIconPending: {
-        borderColor: '#CBD5E1',
-    },
-    stepNumber: {
-        fontSize: 12,
-        color: '#94A3B8',
-        lineHeight: 14,
+        height: 32, // Match icon height
+        marginBottom: 8,
     },
     stepTitle: {
         fontSize: 14,
@@ -435,18 +462,10 @@ const styles = StyleSheet.create({
     },
     stepTitleActive: {
         color: '#0F172A',
-        fontWeight: '800',
+        fontSize: 15,
     },
     stepBody: {
-        padding: 16,
-        paddingTop: 0,
-        backgroundColor: '#FFFFFF',
-    },
-    instructionText: {
-        fontSize: 13,
-        color: '#64748B',
-        marginBottom: 20,
-        lineHeight: 20,
+        paddingTop: 8,
     },
     // Input Styles
     inputContainer: {
