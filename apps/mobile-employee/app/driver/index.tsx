@@ -340,13 +340,13 @@ const styles = StyleSheet.create({
     menuGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        // gap: 12, 
-        rowGap: 16,
+        rowGap: 8,
+        // gap: 8, // Optional: if supported, or rely on space-between
         justifyContent: 'space-between',
         marginBottom: 16,
     },
     menuItem: {
-        width: '30%', // roughly 3 columns
+        width: '32%', // Closer fit
         alignItems: 'center',
     },
     menuIconBox: {
@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
         borderRadius: 18,
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 6,
+        marginBottom: 4,
     },
     menuIcon: {
         fontSize: 22,
