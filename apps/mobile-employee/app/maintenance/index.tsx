@@ -63,8 +63,18 @@ export default function MaintenanceDashboard() {
                         onPress={() => router.push('/maintenance/p2h')}
                     />
                     <MenuButton icon="🛠️" label="Perbaikan" color="#10B981" />
-                    <MenuButton icon="📦" label="Cek Suku Cadang" color="#F59E0B" />
-                    <MenuButton icon="🕒" label="Riwayat Servis" color="#8B5CF6" />
+                    <MenuButton
+                        icon="📦"
+                        label="Cek Suku Cadang"
+                        color="#F59E0B"
+                        onPress={() => router.push('/maintenance/spareparts')}
+                    />
+                    <MenuButton
+                        icon="🕒"
+                        label="Riwayat Servis"
+                        color="#8B5CF6"
+                        onPress={() => router.push('/maintenance/history')}
+                    />
                 </View>
 
                 {/* Repair Queue */}

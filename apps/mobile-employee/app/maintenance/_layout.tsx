@@ -40,6 +40,24 @@ export default function MaintenanceLayout() {
                     ),
                 }}
             />
+            <Tabs.Screen
+                name="p2h"
+                options={{
+                    href: null,
+                }}
+            />
+            <Tabs.Screen
+                name="spareparts"
+                options={{
+                    href: null,
+                }}
+            />
+            <Tabs.Screen
+                name="history"
+                options={{
+                    href: null,
+                }}
+            />
         </Tabs>
     );
 }
