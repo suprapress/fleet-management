@@ -340,30 +340,32 @@ const styles = StyleSheet.create({
     menuGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 12,
+        // gap: 12, 
+        rowGap: 16,
         justifyContent: 'space-between',
-        marginBottom: 32,
+        marginBottom: 16,
     },
     menuItem: {
-        width: '31%', // roughly 3 columns
+        width: '30%', // roughly 3 columns
         alignItems: 'center',
     },
     menuIconBox: {
-        width: 64,
-        height: 64,
-        borderRadius: 20,
+        width: 56,
+        height: 56,
+        borderRadius: 18,
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 8,
+        marginBottom: 6,
     },
     menuIcon: {
-        fontSize: 24,
+        fontSize: 22,
     },
     menuLabel: {
-        fontSize: 11,
+        fontSize: 10,
         color: '#1E293B',
         fontWeight: '600',
         textAlign: 'center',
+        lineHeight: 14,
     },
     sectionHeader: {
         flexDirection: 'row',
