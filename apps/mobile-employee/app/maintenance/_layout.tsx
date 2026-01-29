@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Text } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 
 export default function MaintenanceLayout() {
     return (
@@ -26,8 +26,26 @@ export default function MaintenanceLayout() {
                 name="index"
                 options={{
                     title: 'Beranda',
-                    tabBarIcon: ({ focused }) => (
-                        <Text style={{ fontSize: 24, opacity: focused ? 1 : 0.5 }}>⊞</Text>
+                    tabBarIcon: ({ color }) => (
+                        <Feather name="grid" size={24} color={color} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
+                name="spareparts"
+                options={{
+                    title: 'Suku Cadang',
+                    tabBarIcon: ({ color }) => (
+                        <Feather name="package" size={24} color={color} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
+                name="history"
+                options={{
+                    title: 'Riwayat',
+                    tabBarIcon: ({ color }) => (
+                        <Feather name="clock" size={24} color={color} />
                     ),
                 }}
             />
@@ -35,25 +53,13 @@ export default function MaintenanceLayout() {
                 name="profile"
                 options={{
                     title: 'Profil',
-                    tabBarIcon: ({ focused }) => (
-                        <Text style={{ fontSize: 24, opacity: focused ? 1 : 0.5 }}>👤</Text>
+                    tabBarIcon: ({ color }) => (
+                        <Feather name="user" size={24} color={color} />
                     ),
                 }}
             />
             <Tabs.Screen
                 name="p2h"
-                options={{
-                    href: null,
-                }}
-            />
-            <Tabs.Screen
-                name="spareparts"
-                options={{
-                    href: null,
-                }}
-            />
-            <Tabs.Screen
-                name="history"
                 options={{
                     href: null,
                 }}
