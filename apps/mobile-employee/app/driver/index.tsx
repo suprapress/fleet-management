@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, SafeAreaView } from 'react-native';
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 
 export default function DriverDashboard() {
     return (
@@ -41,7 +41,10 @@ export default function DriverDashboard() {
                 </View>
 
                 {/* Main Action Button */}
-                <TouchableOpacity style={styles.startTripButton}>
+                <TouchableOpacity
+                    style={styles.startTripButton}
+                    onPress={() => router.push('/driver/ritase/create')}
+                >
                     <View>
                         <Text style={styles.startTripTitle}>Mulai Ritase Baru</Text>
                         <Text style={styles.startTripSubtitle}>Tekan untuk pengangkutan baru</Text>
@@ -54,7 +57,13 @@ export default function DriverDashboard() {
                 {/* Quick Menu */}
                 <View style={styles.menuGrid}>
                     <MenuItem icon="👆" label="Absensi" color="#EFF6FF" iconColor="#3B82F6" />
-                    <MenuItem icon="🚛" label="Ritase" color="#F0FDF4" iconColor="#22C55E" />
+                    <MenuItem
+                        icon="🚛"
+                        label="Ritase"
+                        color="#F0FDF4"
+                        iconColor="#22C55E"
+                        onPress={() => router.push('/driver/tasks')}
+                    />
                     <MenuItem icon="⛽" label="Bahan Bakar" color="#FFF7ED" iconColor="#F97316" />
                     <MenuItem icon="⚠️" label="Lapor Kerusakan" color="#FEF2F2" iconColor="#EF4444" />
                     <MenuItem icon="🔍" label="Riwayat" color="#FAF5FF" iconColor="#A855F7" />
@@ -69,7 +78,7 @@ export default function DriverDashboard() {
                     </View>
                 </View>
 
-                <View style={styles.tripCard}>
+                <TouchableOpacity style={styles.tripCard} onPress={() => router.push('/driver/tasks')}>
                     {/* Step 1: Loading */}
                     <View style={styles.stepItem}>
                         <View style={[styles.stepIcon, styles.stepIconDone]}>
@@ -130,7 +139,7 @@ export default function DriverDashboard() {
                             <Text style={styles.stepSubtitle}>BELUM TERSEDIA</Text>
                         </View>
                     </View>
-                </View>
+                </TouchableOpacity>
 
                 {/* Bottom padding for tabs */}
                 <View style={{ height: 20 }} />
